@@ -29,13 +29,10 @@ jobs:
 
       - name: Ensure deploy directory exists
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ~/deploy/${{ github.event.repository.name }}"
-      
+
       - name: Copy project files to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ~/deploy/${{ github.event.repository.name }}/"
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/"
-          ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/
-
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/
 
       - name: Deploy services with Docker Compose
         run: |
@@ -45,5 +42,3 @@ jobs:
             docker compose up -d --remove-orphans
             docker system prune -f
           EOF
-
-
