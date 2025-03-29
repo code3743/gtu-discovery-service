@@ -30,13 +30,12 @@ jobs:
       - name: Ensure deploy directory exists
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ~/deploy/${{ github.event.repository.name }}"
       
-      - name: Install rsync
-        run: sudo apt-get update && sudo apt-get install -y rsync
-      
       - name: Copy project files to VPS
         run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ \
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ~/deploy/${{ github.event.repository.name }}/"
+          scp -r -o StrictHostKeyChecking=no ./* \
           ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/
+
 
       - name: Deploy services with Docker Compose
         run: |
