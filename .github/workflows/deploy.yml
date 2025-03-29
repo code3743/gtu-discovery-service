@@ -1,0 +1,47 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure SSH access
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Verify SSH connection
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo SSH connection successful"
+
+      - name: Ensure deploy directory exists
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ~/deploy/${{ github.event.repository.name }}"
+
+      - name: Copy project files to VPS
+        run: |
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ \
+          ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/
+
+      - name: Deploy services with Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            cd ~/deploy/${{ github.event.repository.name }}
+            docker compose build
+            docker compose up -d --remove-orphans
+            docker system prune -f
+          EOF
+
+
