@@ -2,19 +2,12 @@ services:
   discovery-server:
     build: .
     container_name: discovery-server
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     ports:
       - "8761:8761"
     environment:
       - JAVA_OPTS=-Xmx512m
     networks:
       - shared_network
-
 networks:
   shared_network:
-    driver: bridge
+    external: true
