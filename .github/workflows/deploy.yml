@@ -33,7 +33,7 @@ jobs:
       - name: Copy project files to VPS
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ~/deploy/${{ github.event.repository.name }}/"
-          scp -r -o StrictHostKeyChecking=no ./* \
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/"
           ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy/${{ github.event.repository.name }}/
 
 
