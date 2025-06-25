@@ -19,7 +19,7 @@ class EurekaEventsListenerTest {
     void setUp() {
         logPublisher = mock(LogPublisher.class);
         listener = new EurekaEventsListener();
-        // Inyectar el mock usando reflexión (ya que el campo es privado y @Autowired)
+        // Inject the mock using reflection (since the field is private and annotated with @Autowired)
         java.lang.reflect.Field field;
         try {
             field = EurekaEventsListener.class.getDeclaredField("logPublisher");
